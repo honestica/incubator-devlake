@@ -66,9 +66,9 @@ services:
       - mysql
 
   devlake:
-    image: devlake.docker.scarf.sh/apache/devlake:latest
     build:
       context: backend
+      dockerfile: Dockerfile-dev
       args:
         HTTPS_PROXY: "${HTTPS_PROXY}"
         GOPROXY: "${GOPROXY}"
@@ -76,13 +76,18 @@ services:
       - 8080:8080
     restart: always
     volumes:
+      - ./backend:/app/
       - devlake-log:/app/logs
     env_file:
       - ./.env
     environment:
+      DEVLAKE_PLUGINS: bamboo,bitbucket,circleci,customize,dora,gitextractor,github,github_graphql,gitlab,jenkins,jira,org,pagerduty,refdiff,slack,sonarqube,trello,webhook
       LOGGING_DIR: /app/logs
       TZ: UTC
       # LOGOUT_URI: https://xxx.amazoncognito.com/logout?client_id=yyy&logout_uri=http%3A%2F%2Flocalhost%3A4180%2Foauth2%2Fsign_out
+    # command: ["make", "dev"]
+    stdin_open: true   # equivalent to '-i' in 'docker run'
+    tty: true          # equivalent to '-t' in 'docker run'
     depends_on:
       - mysql
 
