@@ -40,13 +40,17 @@ Before you begin, ensure you have the following installed:
     docker-compose -f docker-compose-dev.yml up -d mysql grafana devlake
     ```
 
-5. **Start the application**
-    To run the backend, connect to the container and run the following commands:
+5. **Use the remote interpreter in VSCode**
+    https://gist.github.com/alvarocavalcanti/24a6f1470d1db724a398ea6204384f00#visual-studio-code
+
+
+6. **Start the application**
+    To run the backend, open the remote container in VSCode and run the following command:
     ```bash
-       docker-compose -f docker-compose-dev.yml exec devlake /bin/bash
        make dev
     ```
-    To run the frontend (a docker container could come)
+
+    To run the frontend, open a new terminal in your local machine and run the following command ((a docker container could come)):
     ```bash
        make configure-dev
     ```
@@ -57,7 +61,7 @@ Before you begin, ensure you have the following installed:
 To build a new version of the Docker image, run the following command in the root directory of the project:
 
 ```bash
-docker build -t honestica/devlake-dev:versionX.Y -f Dockerfile-dev .
+docker build -t honestica/devlake-dev:versionX.Y -f Dockerfile.dev .
 ```
 Replace `versionX.Y` with the appropriate version number for the new image.
 

@@ -4,6 +4,8 @@ FROM --platform=linux/amd64 debian:bullseye
 # Set the environment variables for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
 
+WORKDIR /code
+
 # Update the package repository and install required dependencies
 RUN apt-get update && \
     apt-get install -y \
@@ -35,10 +37,6 @@ RUN apt-get update && \
     openssh-client \
     corkscrew
 
-# Create an app directory
-RUN mkdir /app
-WORKDIR /app
-
 ## --- GO --- ##
 RUN wget https://golang.org/dl/go1.20.4.linux-amd64.tar.gz && \
     tar -C /usr/local -xzf go1.20.4.linux-amd64.tar.gz && \
@@ -51,7 +49,7 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 
 # Copy go.mod and go.sum files first to leverage Docker cache
-COPY go.mod go.sum ./
+COPY go.mod go.sum /code/backend/
 RUN go mod download
 
 # Create directory for building libgit2
@@ -74,8 +72,13 @@ RUN python -m pip install --no-cache --upgrade pip setuptools pipx
 RUN pipx install poetry
 RUN pipx ensurepath
 
-# Copy the rest of the application files
-COPY . .
+## ---- REMOTE INTERPRETER ---- ##
+# Setup SSH with secure root login
+RUN apt-get update \
+    && apt-get install -y openssh-server netcat \
+    && mkdir /var/run/sshd \
+    && echo 'root:password' | chpasswd \
+    && sed -i 's/\#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-# Command to run when container starts
-CMD ["bash"]
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

@@ -68,26 +68,25 @@ services:
   devlake:
     build:
       context: backend
-      dockerfile: Dockerfile-dev
+      dockerfile: Dockerfile.dev
       args:
         HTTPS_PROXY: "${HTTPS_PROXY}"
         GOPROXY: "${GOPROXY}"
     ports:
       - 8080:8080
+      - 9922:22
     restart: always
     volumes:
-      - ./backend:/app/
-      - devlake-log:/app/logs
+      - ./backend/:/code/backend
+      - devlake-log:/code/logs
     env_file:
       - ./.env
     environment:
+      DEV: 'True'
       DEVLAKE_PLUGINS: bamboo,bitbucket,circleci,customize,dora,gitextractor,github,github_graphql,gitlab,jenkins,jira,org,pagerduty,refdiff,slack,sonarqube,trello,webhook
-      LOGGING_DIR: /app/logs
+      LOGGING_DIR: /code/logs
       TZ: UTC
       # LOGOUT_URI: https://xxx.amazoncognito.com/logout?client_id=yyy&logout_uri=http%3A%2F%2Flocalhost%3A4180%2Foauth2%2Fsign_out
-    # command: ["make", "dev"]
-    stdin_open: true   # equivalent to '-i' in 'docker run'
-    tty: true          # equivalent to '-t' in 'docker run'
     depends_on:
       - mysql
 
