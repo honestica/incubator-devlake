@@ -13,44 +13,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import datetime
+from datetime import datetime
 
 from pydevlake import ScopeConfig, Field
 from pydevlake.model import ToolModel, DomainModel, Connection, ToolScope
 
 
-class NPSAnswer(ToolModel, table=True):
+class GoogleSheetNPSAnswer(ToolModel, table=True):
+    # Here we could add a url or any other field that can identify the answer
     answer_id: str = Field(primary_key=True)
     score: int
     responder_team: str
     team: str
-    # date: datetime
+    created_at: datetime
 
 
 class NPSDomainModel(DomainModel):
-    answer_id: str
+    __tablename__ = "nps_answers"
     score: int
-    responder_team: str
+    responder_team: str #TODO: Rename as "stakeholder"
     team: str
-    # date: datetime
+    created_at: datetime
 
 
 class NPSPluginConnection(Connection):
-    """The parameters of your plugin split between those that are required to connect to the datasource
-    that are grouped in your connection class and those that are used to customize conversion to domain
-    models that are grouped in your scope config class.
-    https://github.com/apache/incubator-devlake/blob/main/backend/python/README.md#connection-parameters
-    """
-    # TODO : Add a token
-    url: str
+    # TODO : Configure spreadsheet_id and range_name
+    spreadsheet_id: str = "1isG8C7ZQz7dBFkGZ8IJaOh_K0OfTpL4J2sl1Fmv4EdE"
+    range_name: str = "Sheet1!A:E"
 
 
 class NPSPluginToolScope(ToolScope):
-    """The tool scope type is the top-level entity type of your plugin.
-    For example, a board, a repository, a project, etc.
-    A scope is connected to a connection, and all other collected entities are related to a scope.
-    https://github.com/apache/incubator-devlake/blob/main/backend/python/README.md#tool-scope-type
-    """
+    # TODO: We should move the spreadsheet_it and the range_name here
     team_name: str
 
 

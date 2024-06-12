@@ -164,4 +164,8 @@ venv
 /backend/plugins/gitextractor/parser/output*
 /backend/plugins/gitextractor/parser/demo_repo/
 
+# Ignore any credentials.json and token.json
+**/credentials.json
+**/token.json
+
 __debug_bin*

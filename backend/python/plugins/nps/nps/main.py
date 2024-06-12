@@ -1,44 +1,45 @@
 from typing import Iterable
 
-import pydevlake as dl
-from pydevlake.api import Response
+from pydevlake import RemoteScopeGroup, TestConnectionResult, Plugin, DomainScope
 
 from nps.models import NPSPluginConnection, NPSPluginToolScope, NPSPluginScopeConfig, NPSDomainModel
-from nps.streams.answers import Answer
+from nps.streams.answers import Answers
+from nps.api import GoogleSheetsAPI
 
-class NPSPlugin(dl.Plugin):
+class NPSPlugin(Plugin):
 
     connection_type = NPSPluginConnection
     tool_scope_type = NPSPluginToolScope
     scope_config_type = NPSPluginScopeConfig
     streams = [
-        Answer,
+        Answers,
     ]
 
-    def domain_scopes(self, tool_scope: NPSPluginToolScope) -> Iterable[NPSDomainModel]:
-        """The domain_scopes method should return the list of domain scopes that are related to a given tool scope.
-          Usually, this consists of a single domain scope, but it can be more than one for plugins that collect data from multiple domains."""
-        yield NPSDomainModel(
-            team=tool_scope.team_name,
+    def domain_scopes(self, tool_scope: NPSPluginToolScope) -> Iterable[DomainScope]:
+        yield DomainScope(
+            id=f"{tool_scope.team_name}",
         )
 
-    def remote_scope_groups(self, connection: NPSPluginConnection) -> Iterable[dl.RemoteScopeGroup]:
-        yield dl.RemoteScopeGroup(
+    def remote_scope_groups(self, connection: NPSPluginConnection) -> Iterable[RemoteScopeGroup]:
+        yield RemoteScopeGroup(
             id="1",
             name="team1",
         )
 
     def remote_scopes(self, connection, group_id: str) -> Iterable[NPSPluginToolScope]:
-        # Here we should get the list of teams
-        yield NPSPluginToolScope(
-            team_name='team1',
-        )
+        api = GoogleSheetsAPI(connection)
+        result = api.teams()
+        for team in result.json["teams"]:
+            yield NPSPluginToolScope(
+                id=team,
+                name=team,
+                team_name=team,
+            )
 
-    def test_connection(self, connection: NPSPluginConnection) -> dl.TestConnectionResult:
-        # Fake test connection - Should be implemented
-        print("Tototo")
-        response = Response(status=200, json={})
-        return dl.TestConnectionResult.from_api_response(response)
+    def test_connection(self, connection: NPSPluginConnection) -> TestConnectionResult:
+        api = GoogleSheetsAPI(connection)
+        result = api.answers()
+        return TestConnectionResult.from_api_response(result)
 
 
 if __name__ == '__main__':
