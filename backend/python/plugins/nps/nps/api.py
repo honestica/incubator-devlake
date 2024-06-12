@@ -72,12 +72,14 @@ class GoogleSheetsAPI(API):
         # Get answer range from connection
         range = self.connection.range_name
         result = self._fetch_data_from_sheet(range)
-        values = result.get("values", [])
-        # Remove the first line
-        # TODO: What about the first line? Should we ignore it? Or should we map result based on that ?
-        # The mapping could be stored in the connection!
-        values.pop(0)
-        return Response(request=None, status=200, body=json.dumps({ "answers" : values }).encode('utf-8'))
+        rows = result.get("values", [])
+        # Convert the row (a list) to a dictionnary based on the first line
+        # The first line is the header
+        header = rows.pop(0)
+        answers = []
+        for row in rows:
+            answers.append(dict(zip(header, row)))
+        return Response(request=None, status=200, body=json.dumps({ "answers" : answers }).encode('utf-8'))
 
     def teams(self) -> Response:
         range = "Teams!A:A"

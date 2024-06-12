@@ -16,6 +16,7 @@
 import pytest
 
 from nps.main import NPSPlugin
+from nps.models import NPSDomainModel
 from pydevlake.testing import assert_stream_convert, ContextBuilder
 
 
@@ -23,9 +24,26 @@ from pydevlake.testing import assert_stream_convert, ContextBuilder
 def context():
     return (
         ContextBuilder(NPSPlugin())
-        .with_connection(token='token')
-        .with_scope_config(deployment_pattern='deploy',
-                           production_pattern='prod')
-        .with_scope('johndoe/test-repo', url='https://github.com/johndoe/test-repo')
+        .with_connection() #TODO: Add connection when available
+        .with_scope_config()
+        .with_scope(name="NPS_Scope1", team_name="NPS_Team1")
         .build()
     )
+
+def test_answers_stream(context, capsys):
+    raw = {
+        "answer_id": "1",
+        "score": 10,
+        "responder_team": "team1",
+        "team": "product",
+        "created_at": "2021-01-01T00:00:00",
+    }
+    expected = NPSDomainModel(
+        id="1",
+        score=10,
+        responder_team="team1",
+        team="product",
+        created_at="2021-01-01T00:00:00",
+    )
+    with capsys.disabled():
+        assert_stream_convert(NPSPlugin, "answers", raw, expected, context)

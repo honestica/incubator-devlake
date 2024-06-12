@@ -48,10 +48,5 @@ class NPSPluginToolScope(ToolScope):
 
 
 class NPSPluginScopeConfig(ScopeConfig):
-    """A scope config contains the list of domain entities to collect and optionally some parameters
-    used to customize the conversion of data from the tool layer to the domain layer.
-    For example, you can define a regex to match issue type from issue name.
-    https://github.com/apache/incubator-devlake/blob/main/backend/python/README.md#scope-config
-    """
     # Here we could filter by project
     pass

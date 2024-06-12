@@ -26,18 +26,6 @@ class Answers(Stream):
         for raw_answer in response.json["answers"]:
             yield raw_answer, state
 
-    def extract(self, raw_data) -> GoogleSheetNPSAnswer:
-        # TODO : Here we could import the mapping from the connection
-        # Sample raw data : ['1', '8', 'INTEGRATION', 'PRODUCT', '4/22/2024 12:11:44']
-        print(f"Extracting answer {raw_data}")
-        return GoogleSheetNPSAnswer(
-            answer_id=raw_data[0],
-            score=int(raw_data[1]),
-            responder_team=raw_data[2],
-            team=raw_data[3],
-            created_at=raw_data[4]
-        )
-
     def convert(self, answer: GoogleSheetNPSAnswer, context) -> Iterable[NPSDomainModel]:
         domain_model = NPSDomainModel(
             id=answer.answer_id,
